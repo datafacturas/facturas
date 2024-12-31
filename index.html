@@ -48,7 +48,6 @@
             width: 100%;
             border-collapse: collapse;
             margin: 4mm 0;
-            page-break-inside: avoid;
         }
 
         table th, table td {
@@ -103,15 +102,21 @@
             height: 150px;
             display: block;
             margin: 0 auto;
-            page-break-inside: avoid;
         }
 
         @media print {
-            body {
-                width: 100%;
-                height: auto;
+            table thead {
+                display: table-header-group;
             }
-            
+
+            table tbody {
+                display: table-row-group;
+            }
+
+            table tr {
+                page-break-inside: avoid;
+            }
+
             .qr-section img {
                 display: block;
                 margin: auto;
