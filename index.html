@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo</title>
+    <title>Factura</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,7 +18,7 @@
 
         .titulo {
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -68,14 +68,14 @@
         function renderFactura() {
             const params = new URLSearchParams(window.location.search);
 
-            // Datos de la empresa
-            document.getElementById('companyName').textContent = params.get('companyName') || 'GAVASLO ADVANCED TECHNOLOGY S.R.L.';
-            document.getElementById('rnc').textContent = params.get('rnc') || '132-01902-4';
-            document.getElementById('telefono').textContent = params.get('telefono') || '809-375-7766';
-            document.getElementById('whatsapp').textContent = params.get('whatsapp') || '809-375-7766';
-            document.getElementById('direccion').textContent = params.get('direccion') || 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
+            // Datos fijos de la empresa
+            document.getElementById('companyName').textContent = 'GAVASLO ADVANCED TECHNOLOGY S.R.L.';
+            document.getElementById('rnc').textContent = '132-01902-4';
+            document.getElementById('telefono').textContent = '809-375-7766';
+            document.getElementById('whatsapp').textContent = '809-375-7766';
+            document.getElementById('direccion').textContent = 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
-            // Datos del cliente y factura
+            // Datos dinámicos
             document.getElementById('cliente').textContent = params.get('cliente') || 'Cliente de paso';
             document.getElementById('facturaId').textContent = params.get('facturaId') || '001';
 
@@ -89,10 +89,10 @@
             document.getElementById('vendedor').textContent = params.get('vendedor') || 'Vendedor no especificado';
 
             // Productos
-            const productos = params.get('productos')?.split('|') || [];
-            const cantidades = params.get('cantidades')?.split('|') || [];
-            const precios = params.get('precios')?.split('|') || [];
-            const subtotales = params.get('subtotales')?.split('|') || [];
+            const productos = params.get('productos')?.split(',') || [];
+            const cantidades = params.get('cantidades')?.split(',') || [];
+            const precios = params.get('precios')?.split(',') || [];
+            const subtotales = params.get('subtotales')?.split(',') || [];
 
             const productosBody = document.getElementById('productos');
             productosBody.innerHTML = ''; // Limpia la tabla antes de llenarla
@@ -108,15 +108,9 @@
             });
 
             // Totales
-            const subtotal = parseFloat(params.get('subtotal') || 0);
-            const descuento = parseFloat(params.get('descuento') || 0);
-            const impuesto = (subtotal - descuento) * 0.18;
-            const total = subtotal - descuento + impuesto;
-
-            document.getElementById('importe').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('descuento').textContent = `$${descuento.toFixed(2)}`;
-            document.getElementById('impuesto').textContent = `$${impuesto.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('importe').textContent = `$${parseFloat(params.get('subtotal') || 0).toFixed(2)}`;
+            document.getElementById('descuento').textContent = `$${parseFloat(params.get('descuento') || 0).toFixed(2)}`;
+            document.getElementById('total').textContent = `$${parseFloat(params.get('total') || 0).toFixed(2)}`;
 
             // QR dinámico
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
@@ -160,7 +154,6 @@
         <div class="totales">
             <p>Importe: <span id="importe"></span></p>
             <p>Descuento: <span id="descuento"></span></p>
-            <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
             <p class="total-final">Total a Pagar: <span id="total"></span></p>
         </div>
 
