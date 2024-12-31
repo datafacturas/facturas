@@ -103,7 +103,12 @@
             // Datos de la venta
             document.getElementById('cliente').textContent = params.cliente || 'Cliente de paso';
             document.getElementById('facturaId').textContent = params.facturaId || '';
-            document.getElementById('fecha').textContent = params.fecha || '';
+
+            // Fecha en formato "DD/MM/YYYY, HH:MM p. m."
+            const fecha = new Date(params.fecha);
+            const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            document.getElementById('fecha').textContent = fecha.toLocaleString('es-DO', opcionesFecha);
+
             document.getElementById('vendedor').textContent = params.vendedor || '';
 
             // Productos
@@ -120,7 +125,7 @@
             });
 
             // Totales
-            document.getElementById('subtotal').textContent = `$${params.subtotal.toFixed(2)}`;
+            document.getElementById('importe').textContent = `$${params.subtotal.toFixed(2)}`;
             document.getElementById('descuento').textContent = `$${params.descuento.toFixed(2)}`;
             const impuesto = (params.subtotal - params.descuento) * 0.18;
             document.getElementById('impuesto').textContent = `$${impuesto.toFixed(2)}`;
@@ -154,6 +159,7 @@
             <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
         </div>
 
+        <h2>Detalles de Venta</h2>
         <table>
             <thead>
                 <tr>
@@ -167,10 +173,10 @@
         </table>
 
         <div class="totales">
-            <p>Subtotal: <span id="subtotal"></span></p>
+            <p>Importe: <span id="importe"></span></p>
             <p>Descuento: <span id="descuento"></span></p>
             <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
-            <p class="total-final">Total: <span id="total"></span></p>
+            <p class="total-final">Total a Pagar: <span id="total"></span></p>
         </div>
 
         <div class="footer">
