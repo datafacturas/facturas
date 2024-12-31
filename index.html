@@ -5,91 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .factura { max-width: 800px; margin: auto; padding: 20px; border: 1px solid #ddd; }
-        h1, h2 { text-align: center; }
-        .datos { margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
-    </style>
-</head>
-<body>
-    <div class="factura">
-        <h1>Factura</h1>
-        <h2>Empresa XYZ</h2>
-        <div class="datos">
-            <p><strong>Cliente:</strong> <span id="cliente"></span></p>
-            <p><strong>Fecha:</strong> <span id="fecha"></span></p>
-            <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
-            <p><strong>Método de Pago:</strong> <span id="metodo_pago"></span></p>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody id="productos"></tbody>
-        </table>
-        <div class="totales" style="margin-top: 20px;">
-            <p><strong>Subtotal:</strong> $<span id="subtotal"></span></p>
-            <p><strong>Descuento:</strong> $<span id="descuento"></span></p>
-            <p><strong>Total:</strong> $<span id="total"></span></p>
-        </div>
-    </div>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 2mm 4mm;
+            margin: 0;
+            width: 72mm;
+        }
 
+        h1 {
+            font-size: 1.2em;
+            text-align: center;
+            margin: 2mm 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
+        }
+
+        h2 {
+            font-size: 0.9em;
+            margin: 2mm 0;
+        }
+
+        p, .centered {
+            margin: 1mm 0;
+            font-size: 0.8em;
+        }
+
+        .centered {
+            text-align: center;
+            margin-bottom: 2mm;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2mm 0;
+        }
+
+        table th, table td {
+            padding: 0.5mm;
+            text-align: left;
+            border: none;
+        }
+
+        .total {
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 2mm;
+        }
+
+        .footer {
+            border-top: 1px solid #000;
+            margin-top: 2mm;
+            padding-top: 1mm;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin-top: 5mm;
+        }
+    </style>
     <script>
-        // Función para obtener los parámetros de la URL
         function getParams() {
             const params = new URLSearchParams(window.location.search);
             return {
-                cliente: params.get('cliente'),
-                fecha: params.get('fecha'),
+                companyName: params.get('companyName'),
+                rnc: params.get('rnc'),
                 telefono: params.get('telefono'),
-                metodo_pago: params.get('metodo_pago'),
+                whatsapp: params.get('whatsapp'),
+                direccion: params.get('direccion'),
+                cliente: params.get('cliente'),
+                facturaId: params.get('facturaId'),
+                fecha: params.get('fecha'),
+                vendedor: params.get('vendedor'),
+                productos: params.get('productos')?.split(',') || [],
+                cantidades: params.get('cantidades')?.split(',') || [],
+                precios: params.get('precios')?.split(',') || [],
+                subtotales: params.get('subtotales')?.split(',') || [],
                 subtotal: params.get('subtotal'),
                 descuento: params.get('descuento'),
+                impuesto: params.get('impuesto'),
                 total: params.get('total'),
-                cantidades: params.get('cantidades')?.split(',') || [],
-                productos: params.get('productos')?.split(',') || [],
-                precios: params.get('precios')?.split(',') || [],
-                subtotales: params.get('subtotales')?.split(',') || []
+                qrCode: params.get('qrCode')
             };
         }
 
-        // Función para llenar los datos en la factura
-        function llenarFactura() {
-            const params = getParams();
+        function renderFactura() {
+            const data = getParams();
 
             // Llenar datos generales
-            document.getElementById('cliente').textContent = params.cliente || '';
-            document.getElementById('fecha').textContent = params.fecha || '';
-            document.getElementById('telefono').textContent = params.telefono || '';
-            document.getElementById('metodo_pago').textContent = params.metodo_pago || '';
-            document.getElementById('subtotal').textContent = params.subtotal || '0.00';
-            document.getElementById('descuento').textContent = params.descuento || '0.00';
-            document.getElementById('total').textContent = params.total || '0.00';
+            document.getElementById('companyName').textContent = data.companyName || '';
+            document.getElementById('rnc').textContent = data.rnc || '';
+            document.getElementById('telefono').textContent = data.telefono || '';
+            document.getElementById('whatsapp').textContent = data.whatsapp || '';
+            document.getElementById('direccion').textContent = data.direccion || '';
+            document.getElementById('cliente').textContent = data.cliente || '';
+            document.getElementById('facturaId').textContent = data.facturaId || '';
+            document.getElementById('fecha').textContent = data.fecha || '';
+            document.getElementById('vendedor').textContent = data.vendedor || '';
 
             // Llenar productos
             const productosBody = document.getElementById('productos');
-            params.productos.forEach((producto, index) => {
+            data.productos.forEach((producto, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${producto}</td>
-                    <td>${params.cantidades[index]}</td>
-                    <td>$${params.precios[index]}</td>
-                    <td>$${params.subtotales[index]}</td>
+                    <td>${data.cantidades[index]}</td>
+                    <td>$${parseFloat(data.precios[index]).toFixed(2)}</td>
+                    <td>$${parseFloat(data.subtotales[index]).toFixed(2)}</td>
                 `;
                 productosBody.appendChild(row);
             });
-        }
 
-        // Llenar la factura al cargar la página
-        llenarFactura();
+            // Llenar totales
+            document.getElementById('subtotal').textContent = `$${parseFloat(data.subtotal).toFixed(2)}`;
+            document.getElementById('descuento').textContent = `$${parseFloat(data.descuento).toFixed(2)}`;
+            document.getElementById('impuesto').textContent = `$${parseFloat(data.impuesto).toFixed(2)}`;
+            document.getElementById('total').textContent = `$${parseFloat(data.total).toFixed(2)}`;
+
+            // Generar QR
+            const qrCodeImg = document.getElementById('qrCode');
+            qrCodeImg.src = data.qrCode;
+        }
     </script>
+</head>
+<body onload="renderFactura()">
+    <h1 id="companyName"></h1>
+    <p class="centered">RNC: <span id="rnc"></span></p>
+    <p class="centered">Teléfono: <span id="telefono"></span></p>
+    <p class="centered">WhatsApp: <span id="whatsapp"></span></p>
+    <p class="centered" id="direccion"></p>
+
+    <h2>Cliente: <span id="cliente"></span></h2>
+    <p>Código Factura: <span id="facturaId"></span></p>
+    <p>Fecha: <span id="fecha"></span></p>
+    <p>Vendedor: <span id="vendedor"></span></p>
+
+    <h2>Detalles de Venta</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="productos"></tbody>
+    </table>
+
+    <p>Subtotal: <span id="subtotal"></span></p>
+    <p>Descuento: <span id="descuento"></span></p>
+    <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
+    <p class="total">Total a Pagar: <span id="total"></span></p>
+
+    <div class="qr-section">
+        <p>Consultar garantía en línea:</p>
+        <img id="qrCode" alt="QR Code">
+    </div>
 </body>
 </html>
