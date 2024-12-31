@@ -41,13 +41,14 @@
         h2.detalles-venta {
             font-size: 1em;
             font-weight: bold;
-            margin-left: 5mm; /* Movemos el título un poco hacia la derecha */
+            margin-left: 5mm;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 4mm 0;
+            page-break-inside: avoid;
         }
 
         table th, table td {
@@ -81,7 +82,7 @@
 
         .totales p.total {
             font-weight: bold;
-            font-size: 1.2em; /* Aumenté el tamaño del texto */
+            font-size: 1.2em;
         }
 
         .footer {
@@ -102,9 +103,15 @@
             height: 150px;
             display: block;
             margin: 0 auto;
+            page-break-inside: avoid;
         }
 
         @media print {
+            body {
+                width: 100%;
+                height: auto;
+            }
+            
             .qr-section img {
                 display: block;
                 margin: auto;
@@ -171,7 +178,6 @@
             qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}`;
 
             qrImage.onload = () => {
-                // Esperamos a que el QR se cargue antes de imprimir
                 window.print();
             };
         }
