@@ -17,7 +17,8 @@
             font-size: 1.4em;
             font-weight: bold;
             text-align: center;
-            margin: 5mm 0 2mm 0;
+            margin: 0;
+            padding: 5mm 0;
         }
 
         .centered {
@@ -28,20 +29,21 @@
 
         .datos {
             font-size: 0.9em;
-            margin: 3mm 4mm;
-            line-height: 1.3;
+            margin: 2mm 4mm;
+            line-height: 1.2;
         }
 
         .direccion {
             text-align: center;
             font-size: 0.85em;
-            margin-top: 2mm;
+            margin-top: 1mm;
         }
 
         h2.detalles-venta {
             font-size: 1em;
             font-weight: bold;
-            margin-left: 5mm;
+            margin: 0;
+            padding: 2mm 4mm;
         }
 
         table {
@@ -52,7 +54,7 @@
 
         table th, table td {
             font-size: 0.85em;
-            padding: 2mm;
+            padding: 1.5mm;
             text-align: left;
         }
 
@@ -66,11 +68,11 @@
 
         .totales {
             font-size: 0.9em;
-            margin: 4mm 4mm;
+            margin: 4mm;
         }
 
         .totales p {
-            margin: 2mm 0;
+            margin: 1mm 0;
             display: flex;
             justify-content: space-between;
         }
@@ -87,7 +89,7 @@
         .footer {
             font-size: 0.75em;
             text-align: justify;
-            margin: 4mm 4mm;
+            margin: 4mm;
             border-top: 1px solid #000;
             padding-top: 2mm;
         }
@@ -105,16 +107,17 @@
         }
 
         @media print {
-            table thead {
-                display: none; /* Ocultamos el encabezado al pasar de una página */
-            }
-
-            table tbody tr {
-                page-break-inside: avoid; /* Evita cortar una fila en dos páginas */
-            }
-
             table {
-                page-break-inside: avoid; /* Evita romper la tabla en páginas */
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            tbody tr:last-child {
+                page-break-after: auto;
             }
 
             .qr-section img {
