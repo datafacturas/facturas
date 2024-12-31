@@ -7,62 +7,63 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
+            padding: 2mm 4mm;
             margin: 0;
-            padding: 0;
-            width: 80mm;
-        }
-
-        .factura {
-            padding: 5mm;
+            width: 72mm;
         }
 
         h1 {
-            font-size: 14px;
+            font-size: 1.2em;
             text-align: center;
-            margin-bottom: 5mm;
+            margin: 2mm 0;
             border-bottom: 1px solid #000;
-            padding-bottom: 3mm;
+            padding-bottom: 1mm;
         }
 
-        .datos, .totales {
-            font-size: 12px;
-            margin: 5px 0;
+        h2 {
+            font-size: 0.9em;
+            margin: 2mm 0;
         }
 
-        .datos p, .totales p {
-            margin: 2px 0;
+        p, .centered {
+            margin: 1mm 0;
+            font-size: 0.8em;
+        }
+
+        .centered {
+            text-align: center;
+            margin-bottom: 2mm;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 5mm 0;
+            margin: 2mm 0;
         }
 
         table th, table td {
+            padding: 0.5mm;
             text-align: left;
-            padding: 2mm;
-            font-size: 12px;
+            border: none;
         }
 
         .total {
-            font-size: 14px;
+            font-size: 1em;
             font-weight: bold;
-            text-align: right;
-            margin-top: 5mm;
+            margin-top: 2mm;
         }
 
         .footer {
-            font-size: 10px;
-            margin-top: 10mm;
-            text-align: justify;
             border-top: 1px solid #000;
-            padding-top: 5mm;
+            margin-top: 2mm;
+            padding-top: 1mm;
+            font-size: 0.75em;
+            text-align: justify;
         }
 
         .qr-section {
             text-align: center;
-            margin-top: 10mm;
+            margin-top: 5mm;
         }
 
         .qr-section img {
@@ -141,44 +142,40 @@
     </script>
 </head>
 <body onload="renderFactura()">
-    <div class="factura">
-        <h1 id="companyName"></h1>
-        <p class="datos"><strong>RNC:</strong> <span id="rnc"></span></p>
-        <p class="datos"><strong>Teléfono:</strong> <span id="telefono"></span></p>
-        <p class="datos"><strong>WhatsApp:</strong> <span id="whatsapp"></span></p>
-        <p class="datos" id="direccion"></p>
+    <h1 id="companyName"></h1>
+    <p class="centered">RNC: <span id="rnc"></span></p>
+    <p class="centered">Teléfono: <span id="telefono"></span></p>
+    <p class="centered">WhatsApp: <span id="whatsapp"></span></p>
+    <p class="centered" id="direccion"></p>
 
-        <p class="datos"><strong>Cliente:</strong> <span id="cliente"></span></p>
-        <p class="datos"><strong>Código Factura:</strong> <span id="facturaId"></span></p>
-        <p class="datos"><strong>Fecha:</strong> <span id="fecha"></span></p>
-        <p class="datos"><strong>Vendedor:</strong> <span id="vendedor"></span></p>
+    <h2>Cliente: <span id="cliente"></span></h2>
+    <p>Código Factura: <span id="facturaId"></span></p>
+    <p>Fecha: <span id="fecha"></span></p>
+    <p>Vendedor: <span id="vendedor"></span></p>
 
-        <h2>Detalles de Venta</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Precio</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody id="productos"></tbody>
-        </table>
+    <h2>Detalles de Venta</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="productos"></tbody>
+    </table>
 
-        <p class="totales"><strong>Importe:</strong> <span id="importe"></span></p>
-        <p class="totales"><strong>Descuento:</strong> <span id="descuento"></span></p>
-        <p class="totales"><strong>Impuesto (ITBIS 18%):</strong> <span id="impuesto"></span></p>
-        <p class="total"><strong>Total a Pagar:</strong> <span id="total"></span></p>
+    <p>Importe: <span id="importe"></span></p>
+    <p>Descuento: <span id="descuento"></span></p>
+    <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
+    <p class="total">Total a Pagar: <span id="total"></span></p>
 
-        <div class="footer">
-            GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.
-        </div>
+    <p class="footer">GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.</p>
 
-        <div class="qr-section">
-            <p>Consultar garantía en línea:</p>
-            <img id="qrCode" alt="Código QR">
-        </div>
+    <div class="qr-section">
+        <p>Consultar garantía en línea:</p>
+        <img id="qrCode" alt="Código QR">
     </div>
 </body>
 </html>
