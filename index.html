@@ -105,17 +105,16 @@
         }
 
         @media print {
-            table {
-                page-break-inside: avoid;
+            table thead {
+                display: none; /* Ocultamos el encabezado al pasar de una página */
             }
 
             table tbody tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
+                page-break-inside: avoid; /* Evita cortar una fila en dos páginas */
             }
 
-            thead {
-                display: table-header-group;
+            table {
+                page-break-inside: avoid; /* Evita romper la tabla en páginas */
             }
 
             .qr-section img {
