@@ -41,7 +41,7 @@
         h2.detalles-venta {
             font-size: 1em;
             font-weight: bold;
-            margin-left: 5mm;
+            margin-left: 4mm;
         }
 
         table {
@@ -52,7 +52,7 @@
 
         table th, table td {
             font-size: 0.85em;
-            padding: 2mm;
+            padding: 1mm 2mm; /* Reduce padding para impresión térmica */
             text-align: left;
         }
 
@@ -65,11 +65,7 @@
         }
 
         table thead {
-            display: block; /* Evitamos que el encabezado sea tratado como un grupo */
-        }
-
-        table tbody {
-            display: block;
+            display: none; /* Elimina encabezados en páginas adicionales */
         }
 
         .totales {
@@ -113,12 +109,23 @@
         }
 
         @media print {
-            table thead {
-                visibility: visible;
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            table {
+                page-break-inside: auto;
             }
 
             table tbody tr {
-                page-break-inside: avoid;
+                page-break-inside: avoid; /* Evita que las filas se dividan entre páginas */
+                page-break-after: auto;
+            }
+
+            table td {
+                margin: 0;
+                padding: 0; /* Elimina espacio en impresión térmica */
             }
 
             .qr-section img {
@@ -203,14 +210,6 @@
 
     <h2 class="detalles-venta">Detalles de Venta</h2>
     <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cant.</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
         <tbody id="productos"></tbody>
     </table>
 
