@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             width: 72mm;
+            height: auto;
         }
 
         h1 {
@@ -79,9 +80,10 @@
         }
 
         .qr-section img {
-            width: 100px;
-            height: 100px;
-            margin-top: 2mm;
+            width: 120px;
+            height: 120px;
+            display: block;
+            margin: 0 auto;
         }
 
         @media print {
@@ -147,10 +149,13 @@
 
             // QR
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
-            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`;
+            const qrImage = document.getElementById('qrCode');
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`;
 
-            // Auto print
-            window.print();
+            qrImage.onload = () => {
+                // Esperamos a que el QR se cargue antes de imprimir
+                window.print();
+            };
         }
     </script>
 </head>
