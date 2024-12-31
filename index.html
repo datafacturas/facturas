@@ -29,7 +29,7 @@
         .datos {
             font-size: 0.9em;
             margin: 3mm 4mm;
-            line-height: 1.5;
+            line-height: 1.3;
         }
 
         table {
@@ -111,16 +111,16 @@
             document.getElementById('direccion').textContent = 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
             // Datos del cliente y factura
-            document.getElementById('cliente').textContent = params.get('cliente') || 'Cliente de paso';
-            document.getElementById('facturaId').textContent = params.get('facturaId') || '001';
-
-            const fecha = new Date(params.get('fecha'));
-            document.getElementById('fecha').textContent = fecha.toLocaleString('es-DO', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', hour12: true
-            });
-
-            document.getElementById('vendedor').textContent = params.get('vendedor') || 'Vendedor no especificado';
+            const datosHtml = `
+                <strong>Cliente:</strong> ${params.get('cliente') || 'Cliente de paso'}<br>
+                <strong>Código Factura:</strong> ${params.get('facturaId') || '001'}<br>
+                <strong>Fecha:</strong> ${new Date(params.get('fecha')).toLocaleString('es-DO', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                })}<br>
+                <strong>Vendedor:</strong> ${params.get('vendedor') || 'Vendedor no especificado'}
+            `;
+            document.getElementById('datos').innerHTML = datosHtml;
 
             // Productos
             const productos = params.get('productos')?.split(',') || [];
@@ -172,12 +172,7 @@
     <p class="centered"><strong>WhatsApp:</strong> <span id="whatsapp"></span></p>
     <p class="centered" id="direccion"></p>
 
-    <div class="datos">
-        <p><strong>Cliente:</strong> <span id="cliente"></span></p>
-        <p><strong>Código Factura:</strong> <span id="facturaId"></span></p>
-        <p><strong>Fecha:</strong> <span id="fecha"></span></p>
-        <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
-    </div>
+    <div class="datos" id="datos"></div>
 
     <h2>Detalles de Venta</h2>
     <table>
