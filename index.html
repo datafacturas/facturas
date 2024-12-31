@@ -18,16 +18,16 @@
 
         .titulo {
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
         }
 
-        .datos {
+        .datos, .totales {
             font-size: 10px;
-            margin-bottom: 5px;
+            margin: 5px 0;
         }
 
-        .datos p {
+        .datos p, .totales p {
             margin: 2px 0;
         }
 
@@ -43,18 +43,10 @@
             padding: 2px;
         }
 
-        .totales {
-            margin-top: 5px;
-            font-size: 10px;
-        }
-
-        .totales p {
-            margin: 2px 0;
-        }
-
         .total-final {
             font-size: 12px;
             font-weight: bold;
+            text-align: right;
         }
 
         .footer {
@@ -105,7 +97,7 @@
             document.getElementById('whatsapp').textContent = params.whatsapp || '809-375-7766';
             document.getElementById('direccion').textContent = params.direccion || 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
-            // Datos del cliente y venta
+            // Datos de la venta
             document.getElementById('cliente').textContent = params.cliente || 'Cliente de paso';
             document.getElementById('facturaId').textContent = params.facturaId || '001';
 
@@ -118,6 +110,7 @@
 
             // Productos
             const productosBody = document.getElementById('productos');
+            productosBody.innerHTML = ''; // Limpia la tabla antes de llenarla
             params.productos.forEach((producto, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
