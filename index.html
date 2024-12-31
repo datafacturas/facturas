@@ -3,67 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factura</title>
+    <title>Recibo</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 2mm 4mm;
+            font-family: Arial, sans-serif;
             margin: 0;
-            width: 72mm;
+            padding: 0;
+            width: 80mm;
         }
 
-        h1 {
-            font-size: 1.2em;
+        .factura {
+            padding: 5mm;
+        }
+
+        .titulo {
             text-align: center;
-            margin: 2mm 0;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1mm;
+            font-size: 12px;
+            font-weight: bold;
         }
 
-        h2 {
-            font-size: 0.9em;
-            margin: 2mm 0;
+        .datos, .totales {
+            font-size: 10px;
+            margin: 5px 0;
         }
 
-        p, .centered {
-            margin: 1mm 0;
-            font-size: 0.8em;
-        }
-
-        .centered {
-            text-align: center;
-            margin-bottom: 2mm;
+        .datos p, .totales p {
+            margin: 2px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 2mm 0;
+            font-size: 10px;
+            margin: 5px 0;
         }
 
         table th, table td {
-            padding: 0.5mm;
             text-align: left;
-            border: none;
+            padding: 2px;
         }
 
-        .total {
-            font-size: 1em;
+        .total-final {
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 2mm;
+            text-align: right;
         }
 
         .footer {
-            border-top: 1px solid #000;
-            margin-top: 2mm;
-            padding-top: 1mm;
+            font-size: 9px;
+            margin-top: 10px;
+            text-align: justify;
         }
 
         .qr-section {
             text-align: center;
-            margin-top: 5mm;
+            margin-top: 10px;
         }
 
+        .qr-section img {
+            width: 100px;
+            height: 100px;
+        }
     </style>
     <script>
         function getParams() {
@@ -83,30 +83,34 @@
                 precios: params.get('precios')?.split(',') || [],
                 subtotales: params.get('subtotales')?.split(',') || [],
                 subtotal: parseFloat(params.get('subtotal')) || 0,
-                descuento: parseFloat(params.get('descuento')) || 0,
-                total: parseFloat(params.get('total')) || 0,
-                qrCodeUrl: params.get('qrCodeUrl')
+                descuento: parseFloat(params.get('descuento')) || 0
             };
         }
 
         function renderFactura() {
             const params = getParams();
 
-            // Datos fijos de la empresa
-            document.getElementById('companyName').textContent = params.companyName || '';
-            document.getElementById('rnc').textContent = params.rnc || '';
-            document.getElementById('telefono').textContent = params.telefono || '';
-            document.getElementById('whatsapp').textContent = params.whatsapp || '';
-            document.getElementById('direccion').textContent = params.direccion || '';
+            // Datos de la empresa
+            document.getElementById('companyName').textContent = params.companyName || 'GAVASLO ADVANCED TECHNOLOGY S.R.L.';
+            document.getElementById('rnc').textContent = params.rnc || '132-01902-4';
+            document.getElementById('telefono').textContent = params.telefono || '809-375-7766';
+            document.getElementById('whatsapp').textContent = params.whatsapp || '809-375-7766';
+            document.getElementById('direccion').textContent = params.direccion || 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
-            // Datos de la venta
-            document.getElementById('cliente').textContent = params.cliente || '';
-            document.getElementById('facturaId').textContent = params.facturaId || '';
-            document.getElementById('fecha').textContent = params.fecha || '';
-            document.getElementById('vendedor').textContent = params.vendedor || '';
+            // Datos del cliente y factura
+            document.getElementById('cliente').textContent = params.cliente || 'Cliente de paso';
+            document.getElementById('facturaId').textContent = params.facturaId || '001';
+
+            // Fecha formateada
+            const fecha = new Date(params.fecha);
+            const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            document.getElementById('fecha').textContent = fecha.toLocaleString('es-DO', opcionesFecha);
+
+            document.getElementById('vendedor').textContent = params.vendedor || 'Vendedor no especificado';
 
             // Productos
             const productosBody = document.getElementById('productos');
+            productosBody.innerHTML = ''; // Limpia la tabla antes de llenarla
             params.productos.forEach((producto, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -119,51 +123,68 @@
             });
 
             // Totales
-            document.getElementById('subtotal').textContent = `$${params.subtotal.toFixed(2)}`;
+            const impuesto = (params.subtotal - params.descuento) * 0.18;
+            const total = params.subtotal - params.descuento + impuesto;
+
+            document.getElementById('importe').textContent = `$${params.subtotal.toFixed(2)}`;
             document.getElementById('descuento').textContent = `$${params.descuento.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${params.total.toFixed(2)}`;
+            document.getElementById('impuesto').textContent = `$${impuesto.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 
-            // Código QR
-            const qrCodeImg = document.getElementById('qrCode');
-            qrCodeImg.src = params.qrCodeUrl;
+            // QR dinámico
+            const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.facturaId}`;
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUrl)}`;
 
-            // Auto Print
+            // Auto print
             window.print();
         }
     </script>
 </head>
 <body onload="renderFactura()">
-    <h1 id="companyName"></h1>
-    <p class="centered">RNC: <span id="rnc"></span></p>
-    <p class="centered">Teléfono: <span id="telefono"></span></p>
-    <p class="centered">WhatsApp: <span id="whatsapp"></span></p>
-    <p class="centered" id="direccion"></p>
+    <div class="factura">
+        <div class="titulo">GAVASLO ADVANCED TECHNOLOGY S.R.L.</div>
+        <div class="datos">
+            <p>RNC: <span id="rnc"></span></p>
+            <p>Teléfono: <span id="telefono"></span></p>
+            <p>WhatsApp: <span id="whatsapp"></span></p>
+            <p>Dirección: <span id="direccion"></span></p>
+        </div>
 
-    <h2>Cliente: <span id="cliente"></span></h2>
-    <p>Código Factura: <span id="facturaId"></span></p>
-    <p>Fecha: <span id="fecha"></span></p>
-    <p>Vendedor: <span id="vendedor"></span></p>
+        <div class="datos">
+            <p><strong>Cliente:</strong> <span id="cliente"></span></p>
+            <p><strong>Código Factura:</strong> <span id="facturaId"></span></p>
+            <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+            <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
+        </div>
 
-    <h2>Detalles de Venta</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cant.</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody id="productos"></tbody>
-    </table>
+        <h2>Detalles de Venta</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="productos"></tbody>
+        </table>
 
-    <p>Subtotal: <span id="subtotal"></span></p>
-    <p>Descuento: <span id="descuento"></span></p>
-    <p class="total">Total: <span id="total"></span></p>
+        <div class="totales">
+            <p>Importe: <span id="importe"></span></p>
+            <p>Descuento: <span id="descuento"></span></p>
+            <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
+            <p class="total-final">Total a Pagar: <span id="total"></span></p>
+        </div>
 
-    <div class="qr-section">
-        <p>Consultar garantía en línea:</p>
-        <img id="qrCode" alt="QR Code">
+        <div class="footer">
+            GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.
+        </div>
+
+        <div class="qr-section">
+            <p>Consultar garantía en línea:</p>
+            <img id="qrCode" alt="QR Code">
+        </div>
     </div>
 </body>
 </html>
