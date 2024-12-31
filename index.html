@@ -47,7 +47,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 4mm 0;
+            margin: 0;
         }
 
         table th, table td {
@@ -106,21 +106,16 @@
 
         @media print {
             table {
-                page-break-inside: auto;
+                page-break-inside: avoid;
             }
 
-            thead {
-                display: table-row-group;
-                visibility: collapse;
-            }
-
-            tbody tr {
+            table tbody tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
 
-            tbody td {
-                border-top: none;
+            thead {
+                display: table-header-group;
             }
 
             .qr-section img {
