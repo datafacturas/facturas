@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            padding: 2mm;
             margin: 0;
+            padding: 0;
             width: 72mm;
         }
 
@@ -16,7 +16,7 @@
             font-size: 1.4em;
             font-weight: bold;
             text-align: center;
-            margin: 2mm 0;
+            margin: 5mm 0 2mm 0;
         }
 
         .centered {
@@ -25,43 +25,63 @@
             margin: 1mm 0;
         }
 
+        .datos {
+            font-size: 0.9em;
+            margin: 3mm 4mm;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 2mm 0;
+            margin: 4mm 0;
         }
 
         table th, table td {
-            padding: 0.5mm;
+            font-size: 0.85em;
+            padding: 2mm;
             text-align: left;
-            font-size: 0.8em;
         }
 
-        .total {
-            font-size: 1em;
+        table th {
+            border-bottom: 1px solid #000;
+        }
+
+        table td {
+            vertical-align: top;
+        }
+
+        .totales {
+            font-size: 0.9em;
+            margin: 4mm 4mm;
+        }
+
+        .totales p {
+            margin: 2mm 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .totales p span {
             font-weight: bold;
-            margin-top: 2mm;
-            text-align: right;
         }
 
         .footer {
             font-size: 0.75em;
-            margin-top: 5mm;
             text-align: justify;
+            margin: 4mm 4mm;
             border-top: 1px solid #000;
             padding-top: 2mm;
         }
 
         .qr-section {
             text-align: center;
-            margin-top: 10mm;
+            margin-top: 5mm;
         }
 
         .qr-section img {
-            display: block;
-            margin: auto;
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
+            margin-top: 2mm;
         }
 
         @media print {
@@ -75,14 +95,14 @@
         function renderFactura() {
             const params = new URLSearchParams(window.location.search);
 
-            // Encabezado
+            // Datos de la empresa
             document.getElementById('companyName').textContent = params.get('companyName') || 'GAVASLO ADVANCED TECHNOLOGY S.R.L.';
             document.getElementById('rnc').textContent = params.get('rnc') || '132-01902-4';
             document.getElementById('telefono').textContent = '809-375-7766';
             document.getElementById('whatsapp').textContent = '809-375-7766';
             document.getElementById('direccion').textContent = 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
-            // Cliente y datos de factura
+            // Datos del cliente y factura
             document.getElementById('cliente').textContent = params.get('cliente') || 'Cliente de paso';
             document.getElementById('facturaId').textContent = params.get('facturaId') || '001';
 
@@ -141,10 +161,12 @@
     <p class="centered"><strong>WhatsApp:</strong> <span id="whatsapp"></span></p>
     <p class="centered" id="direccion"></p>
 
-    <h2>Cliente: <span id="cliente"></span></h2>
-    <p>Código Factura: <span id="facturaId"></span></p>
-    <p>Fecha: <span id="fecha"></span></p>
-    <p>Vendedor: <span id="vendedor"></span></p>
+    <div class="datos">
+        <p><strong>Cliente:</strong> <span id="cliente"></span></p>
+        <p><strong>Código Factura:</strong> <span id="facturaId"></span></p>
+        <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+        <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
+    </div>
 
     <h2>Detalles de Venta</h2>
     <table>
@@ -159,11 +181,13 @@
         <tbody id="productos"></tbody>
     </table>
 
-    <p>Importe: <span id="importe"></span></p>
-    <p>Descuento: <span id="descuento"></span></p>
-    <p>Subtotal: <span id="subTotal"></span></p>
-    <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
-    <p class="total">Total a Pagar: <span id="total"></span></p>
+    <div class="totales">
+        <p><span>Importe:</span> <span id="importe"></span></p>
+        <p><span>Descuento:</span> <span id="descuento"></span></p>
+        <p><span>Subtotal:</span> <span id="subTotal"></span></p>
+        <p><span>Impuesto (ITBIS 18%):</span> <span id="impuesto"></span></p>
+        <p class="total"><span>Total a Pagar:</span> <span id="total"></span></p>
+    </div>
 
     <p class="footer">GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.</p>
 
