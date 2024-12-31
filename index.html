@@ -63,7 +63,12 @@
         }
 
         .totales p span {
+            font-weight: normal;
+        }
+
+        .totales p.total {
             font-weight: bold;
+            font-size: 1em;
         }
 
         .footer {
@@ -129,8 +134,8 @@
                 row.innerHTML = `
                     <td>${producto}</td>
                     <td>${cantidades[index]}</td>
-                    <td>$${parseFloat(precios[index] || 0).toFixed(2)}</td>
-                    <td>$${parseFloat(subtotales[index] || 0).toFixed(2)}</td>
+                    <td>$${parseFloat(precios[index] || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td>$${parseFloat(subtotales[index] || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 `;
                 productosBody.appendChild(row);
             });
@@ -141,11 +146,11 @@
             const impuesto = subtotal * 0.18;
             const total = subtotal - descuento + impuesto;
 
-            document.getElementById('importe').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('descuento').textContent = `$${descuento.toFixed(2)}`;
-            document.getElementById('subTotal').textContent = `$${(subtotal - descuento).toFixed(2)}`;
-            document.getElementById('impuesto').textContent = `$${impuesto.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('importe').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('subTotal').textContent = `$${(subtotal - descuento).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('impuesto').textContent = `$${impuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('total').textContent = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
             // QR
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
