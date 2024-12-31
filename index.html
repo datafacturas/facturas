@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            padding: 2mm 4mm;
+            padding: 2mm;
             margin: 0;
             width: 72mm;
         }
@@ -41,11 +41,12 @@
             font-size: 1em;
             font-weight: bold;
             margin-top: 2mm;
+            text-align: right;
         }
 
         .footer {
-            font-size: 0.7em;
-            margin-top: 4mm;
+            font-size: 0.75em;
+            margin-top: 5mm;
             text-align: justify;
             border-top: 1px solid #000;
             padding-top: 2mm;
@@ -53,12 +54,14 @@
 
         .qr-section {
             text-align: center;
-            margin-top: 5mm;
+            margin-top: 10mm;
         }
 
         .qr-section img {
-            width: 100px;
-            height: 100px;
+            display: block;
+            margin: auto;
+            width: 120px;
+            height: 120px;
         }
 
         @media print {
@@ -124,10 +127,7 @@
 
             // QR
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
-            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUrl)}`;
-
-            // Auto print
-            window.print();
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`;
         }
     </script>
 </head>
