@@ -13,26 +13,16 @@
         }
 
         h1 {
-            font-size: 1.2em;
+            font-size: 1.4em;
+            font-weight: bold;
             text-align: center;
             margin: 2mm 0;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1mm;
-        }
-
-        h2 {
-            font-size: 0.9em;
-            margin: 2mm 0;
-        }
-
-        p, .centered {
-            margin: 1mm 0;
-            font-size: 0.8em;
         }
 
         .centered {
             text-align: center;
-            margin-bottom: 2mm;
+            font-size: 0.9em;
+            margin: 1mm 0;
         }
 
         table {
@@ -44,7 +34,7 @@
         table th, table td {
             padding: 0.5mm;
             text-align: left;
-            border: none;
+            font-size: 0.8em;
         }
 
         .total {
@@ -54,11 +44,11 @@
         }
 
         .footer {
-            border-top: 1px solid #000;
-            margin-top: 2mm;
-            padding-top: 1mm;
-            font-size: 0.75em;
+            font-size: 0.7em;
+            margin-top: 4mm;
             text-align: justify;
+            border-top: 1px solid #000;
+            padding-top: 2mm;
         }
 
         .qr-section {
@@ -82,18 +72,17 @@
         function renderFactura() {
             const params = new URLSearchParams(window.location.search);
 
-            // Datos de la empresa
+            // Encabezado
             document.getElementById('companyName').textContent = params.get('companyName') || 'GAVASLO ADVANCED TECHNOLOGY S.R.L.';
             document.getElementById('rnc').textContent = params.get('rnc') || '132-01902-4';
             document.getElementById('telefono').textContent = params.get('telefono') || '809-375-7766';
             document.getElementById('whatsapp').textContent = params.get('whatsapp') || '809-375-7766';
             document.getElementById('direccion').textContent = params.get('direccion') || 'PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.';
 
-            // Datos del cliente y factura
+            // Cliente y datos de factura
             document.getElementById('cliente').textContent = params.get('cliente') || 'Cliente de paso';
             document.getElementById('facturaId').textContent = params.get('facturaId') || '001';
 
-            // Fecha formateada
             const fecha = new Date(params.get('fecha'));
             document.getElementById('fecha').textContent = fecha.toLocaleString('es-DO', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
@@ -109,7 +98,7 @@
             const subtotales = params.get('subtotales')?.split(',') || [];
 
             const productosBody = document.getElementById('productos');
-            productosBody.innerHTML = ''; // Limpia la tabla antes de llenarla
+            productosBody.innerHTML = '';
             productos.forEach((producto, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -132,7 +121,7 @@
             document.getElementById('impuesto').textContent = `$${impuesto.toFixed(2)}`;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 
-            // QR dinámico
+            // QR
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
             document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUrl)}`;
 
@@ -143,9 +132,9 @@
 </head>
 <body onload="renderFactura()">
     <h1 id="companyName"></h1>
-    <p class="centered">RNC: <span id="rnc"></span></p>
-    <p class="centered">Teléfono: <span id="telefono"></span></p>
-    <p class="centered">WhatsApp: <span id="whatsapp"></span></p>
+    <p class="centered"><strong>RNC:</strong> <span id="rnc"></span></p>
+    <p class="centered"><strong>Teléfono:</strong> <span id="telefono"></span></p>
+    <p class="centered"><strong>WhatsApp:</strong> <span id="whatsapp"></span></p>
     <p class="centered" id="direccion"></p>
 
     <h2>Cliente: <span id="cliente"></span></h2>
