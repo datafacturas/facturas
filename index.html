@@ -107,13 +107,12 @@
         }
 
         @media print {
-            table {
-                page-break-inside: auto;
+            thead {
+                display: none; /* Oculta el encabezado en las páginas siguientes */
             }
 
-            tr {
+            table tbody tr {
                 page-break-inside: avoid;
-                page-break-after: auto;
             }
 
             tbody tr:last-child {
