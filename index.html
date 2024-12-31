@@ -71,7 +71,6 @@
                 subtotales: params.get('subtotales')?.split(',') || [],
                 subtotal: parseFloat(params.get('subtotal')) || 0,
                 descuento: parseFloat(params.get('descuento')) || 0,
-                impuesto: parseFloat(params.get('impuesto')) || 0,
                 total: parseFloat(params.get('total')) || 0
             };
         }
@@ -104,6 +103,10 @@
             const impuestoCalculado = (params.subtotal - params.descuento) * 0.18;
             document.getElementById('impuesto').textContent = `$${impuestoCalculado.toFixed(2)}`;
             document.getElementById('total').textContent = `$${(params.subtotal - params.descuento + impuestoCalculado).toFixed(2)}`;
+
+            // Generar código QR
+            const qrCodeUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.facturaId}`;
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
 
             // Auto print
             window.print();
@@ -147,7 +150,7 @@
         </div>
         <div class="qr">
             <p>Consultar garantía en línea:</p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://datafacturas.github.io/facturas/" alt="QR Code">
+            <img id="qrCode" alt="QR Code">
         </div>
     </div>
 </body>
