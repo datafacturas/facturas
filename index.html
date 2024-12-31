@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura</title>
     <style>
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            width: 80mm;
+            width: 80mm; /* Ancho típico de impresoras POS */
         }
 
         .factura {
@@ -62,6 +63,20 @@
         .qr-section img {
             width: 100px;
             height: 100px;
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                width: 80mm;
+            }
+
+            .qr-section img {
+                display: block !important;
+                margin: 0 auto;
+            }
         }
     </style>
     <script>
