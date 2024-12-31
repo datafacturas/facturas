@@ -64,6 +64,14 @@
             vertical-align: top;
         }
 
+        table thead {
+            display: block; /* Evitamos que el encabezado sea tratado como un grupo */
+        }
+
+        table tbody {
+            display: block;
+        }
+
         .totales {
             font-size: 0.9em;
             margin: 4mm 4mm;
@@ -106,14 +114,10 @@
 
         @media print {
             table thead {
-                display: table-header-group;
+                visibility: visible;
             }
 
-            table tbody {
-                display: table-row-group;
-            }
-
-            table tr {
+            table tbody tr {
                 page-break-inside: avoid;
             }
 
