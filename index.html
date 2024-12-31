@@ -6,61 +6,74 @@
     <title>Factura</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            padding: 2mm 4mm;
             margin: 0;
-            padding: 0;
-            width: 80mm;
+            width: 72mm;
         }
-        .factura {
-            padding: 10px;
-        }
-        .titulo {
+
+        h1 {
+            font-size: 1.2em;
             text-align: center;
-            font-size: 14px;
-            font-weight: bold;
+            margin: 2mm 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
         }
-        .datos {
-            font-size: 10px;
-            margin: 5px 0;
-            text-align: left;
+
+        h2 {
+            font-size: 0.9em;
+            margin: 2mm 0;
         }
+
+        p, .centered {
+            margin: 1mm 0;
+            font-size: 0.8em;
+        }
+
+        .centered {
+            text-align: center;
+            margin-bottom: 2mm;
+        }
+
         table {
             width: 100%;
-            font-size: 10px;
             border-collapse: collapse;
+            margin: 2mm 0;
         }
-        th, td {
-            padding: 2px;
+
+        table th, table td {
+            padding: 0.5mm;
             text-align: left;
+            border: none;
         }
-        th {
-            border-bottom: 1px solid #000;
+
+        .total {
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 2mm;
         }
-        .totales {
-            font-size: 10px;
-            margin-top: 10px;
+
+        .footer {
+            border-top: 1px solid #000;
+            margin-top: 2mm;
+            padding-top: 1mm;
         }
-        .totales p {
-            margin: 2px 0;
-        }
-        .pie {
-            margin-top: 10px;
-            font-size: 9px;
-            text-align: justify;
-        }
-        .qr {
+
+        .qr-section {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 5mm;
         }
-        img {
-            width: 80px;
-            height: 80px;
-        }
+
     </style>
     <script>
         function getParams() {
             const params = new URLSearchParams(window.location.search);
             return {
+                companyName: params.get('companyName'),
+                rnc: params.get('rnc'),
+                telefono: params.get('telefono'),
+                whatsapp: params.get('whatsapp'),
+                direccion: params.get('direccion'),
                 cliente: params.get('cliente'),
                 facturaId: params.get('facturaId'),
                 fecha: params.get('fecha'),
@@ -71,7 +84,8 @@
                 subtotales: params.get('subtotales')?.split(',') || [],
                 subtotal: parseFloat(params.get('subtotal')) || 0,
                 descuento: parseFloat(params.get('descuento')) || 0,
-                total: parseFloat(params.get('total')) || 0
+                total: parseFloat(params.get('total')) || 0,
+                qrCodeUrl: params.get('qrCodeUrl')
             };
         }
 
@@ -79,7 +93,14 @@
             const params = getParams();
 
             // Datos fijos de la empresa
-            document.getElementById('cliente').textContent = params.cliente || 'Cliente de paso';
+            document.getElementById('companyName').textContent = params.companyName || '';
+            document.getElementById('rnc').textContent = params.rnc || '';
+            document.getElementById('telefono').textContent = params.telefono || '';
+            document.getElementById('whatsapp').textContent = params.whatsapp || '';
+            document.getElementById('direccion').textContent = params.direccion || '';
+
+            // Datos de la venta
+            document.getElementById('cliente').textContent = params.cliente || '';
             document.getElementById('facturaId').textContent = params.facturaId || '';
             document.getElementById('fecha').textContent = params.fecha || '';
             document.getElementById('vendedor').textContent = params.vendedor || '';
@@ -98,60 +119,51 @@
             });
 
             // Totales
-            document.getElementById('importe').textContent = `$${params.subtotal.toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `$${params.subtotal.toFixed(2)}`;
             document.getElementById('descuento').textContent = `$${params.descuento.toFixed(2)}`;
-            const impuestoCalculado = (params.subtotal - params.descuento) * 0.18;
-            document.getElementById('impuesto').textContent = `$${impuestoCalculado.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${(params.subtotal - params.descuento + impuestoCalculado).toFixed(2)}`;
+            document.getElementById('total').textContent = `$${params.total.toFixed(2)}`;
 
-            // Generar código QR
-            const qrCodeUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.facturaId}`;
-            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
+            // Código QR
+            const qrCodeImg = document.getElementById('qrCode');
+            qrCodeImg.src = params.qrCodeUrl;
 
-            // Auto print
+            // Auto Print
             window.print();
         }
     </script>
 </head>
 <body onload="renderFactura()">
-    <div class="factura">
-        <div class="titulo">GAVASLO ADVANCED TECHNOLOGY S.R.L.</div>
-        <div class="datos">
-            <p>RNC: 132-01902-4</p>
-            <p>Teléfono: 809-375-7766</p>
-            <p>WhatsApp: 809-375-7766</p>
-            <p>PLAZA SANTANA VASQUEZ, EL SAMÁN, AL LADO DE PANADERÍA SANTANA, TAMBORIL.</p>
-        </div>
-        <div class="datos">
-            <p><strong>Cliente:</strong> <span id="cliente"></span></p>
-            <p><strong>Código Factura:</strong> <span id="facturaId"></span></p>
-            <p><strong>Fecha:</strong> <span id="fecha"></span></p>
-            <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Precio</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody id="productos"></tbody>
-        </table>
-        <div class="totales">
-            <p>Importe: <span id="importe"></span></p>
-            <p>Descuento: <span id="descuento"></span></p>
-            <p>Impuesto (ITBIS 18%): <span id="impuesto"></span></p>
-            <p><strong>Total a Pagar: <span id="total"></span></strong></p>
-        </div>
-        <div class="pie">
-            GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.
-        </div>
-        <div class="qr">
-            <p>Consultar garantía en línea:</p>
-            <img id="qrCode" alt="QR Code">
-        </div>
+    <h1 id="companyName"></h1>
+    <p class="centered">RNC: <span id="rnc"></span></p>
+    <p class="centered">Teléfono: <span id="telefono"></span></p>
+    <p class="centered">WhatsApp: <span id="whatsapp"></span></p>
+    <p class="centered" id="direccion"></p>
+
+    <h2>Cliente: <span id="cliente"></span></h2>
+    <p>Código Factura: <span id="facturaId"></span></p>
+    <p>Fecha: <span id="fecha"></span></p>
+    <p>Vendedor: <span id="vendedor"></span></p>
+
+    <h2>Detalles de Venta</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="productos"></tbody>
+    </table>
+
+    <p>Subtotal: <span id="subtotal"></span></p>
+    <p>Descuento: <span id="descuento"></span></p>
+    <p class="total">Total: <span id="total"></span></p>
+
+    <div class="qr-section">
+        <p>Consultar garantía en línea:</p>
+        <img id="qrCode" alt="QR Code">
     </div>
 </body>
 </html>
