@@ -108,7 +108,7 @@
 
         @media print {
             table thead {
-                display: table-header-group; /* Asegura que los encabezados aparezcan una vez por impresión */
+                display: none; /* Elimina el encabezado repetido en cada página */
             }
 
             table tbody tr {
@@ -164,7 +164,7 @@
             const subtotales = params.get('subtotales')?.split(',') || [];
 
             const productosBody = document.getElementById('productos');
-            productosBody.innerHTML = '';
+            productosBody.innerHTML = '<tr><td><strong>Producto</strong></td><td><strong>Cant.</strong></td><td><strong>Precio</strong></td><td><strong>Subtotal</strong></td></tr>';
             productos.forEach((producto, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -210,14 +210,6 @@
 
     <h2 class="detalles-venta">Detalles de Venta</h2>
     <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cant.</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
         <tbody id="productos"></tbody>
     </table>
 
