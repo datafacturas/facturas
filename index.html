@@ -108,7 +108,7 @@
 
         @media print {
             table thead {
-                display: table-header-group;
+                display: none; /* Elimina el encabezado repetido en cada página */
             }
 
             table tbody tr {
@@ -180,7 +180,7 @@
             const subtotal = parseFloat(params.get('subtotal') || 0);
             const descuento = parseFloat(params.get('descuento') || 0);
             const impuesto = (subtotal - descuento) * 0.18;
-            const total = subtotal + impuesto;
+            const total = (subtotal - descuento) + impuesto;
 
             document.getElementById('importe').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
