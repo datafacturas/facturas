@@ -108,12 +108,11 @@
 
         @media print {
             thead {
-                visibility: hidden; /* Oculta los encabezados en las páginas siguientes */
+                display: none;
             }
 
             table tbody tr {
                 page-break-inside: avoid;
-                page-break-after: auto;
             }
 
             tbody tr:last-child {
@@ -174,14 +173,15 @@
             });
 
             // Totales
-            const subtotal = parseFloat(params.get('subtotal') || 0);
-            const descuento = parseFloat(params.get('descuento') || 0);
-            const impuesto = (subtotal - descuento) * 0.18;
-            const total = subtotal + impuesto;
+            const importe = parseFloat(params.get('subtotal')) || 0;
+            const descuento = parseFloat(params.get('descuento')) || 0;
+            const baseImpuesto = importe - descuento;
+            const impuesto = baseImpuesto * 0.18;
+            const total = baseImpuesto + impuesto;
 
-            document.getElementById('importe').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('importe').textContent = `$${importe.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('subTotal').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('subTotal').textContent = `$${baseImpuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('impuesto').textContent = `$${impuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('total').textContent = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
