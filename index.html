@@ -108,11 +108,12 @@
 
         @media print {
             thead {
-                visibility: visible; /* Asegura que el encabezado de la tabla sea visible */
+                visibility: hidden; /* Oculta los encabezados en las páginas siguientes */
             }
 
             table tbody tr {
                 page-break-inside: avoid;
+                page-break-after: auto;
             }
 
             tbody tr:last-child {
