@@ -107,12 +107,21 @@
         }
 
         @media print {
+            thead {
+                display: none;
+            }
+
             table tbody tr {
                 page-break-inside: avoid;
             }
 
             tbody tr:last-child {
                 page-break-after: auto;
+            }
+
+            .qr-section img {
+                display: block;
+                margin: auto;
             }
         }
     </style>
@@ -135,7 +144,11 @@
                     day: '2-digit', month: '2-digit', year: 'numeric',
                     hour: '2-digit', minute: '2-digit', hour12: true
                 })}<br>
-                <strong>NCF:</strong> ${params.get('ncf') || ''}<br>
+                <strong>Impresión:</strong> ${new Date().toLocaleString('es-DO', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                })}<br>
+                ${params.get('ncf') ? `<strong>NCF:</strong> ${params.get('ncf')}<br>` : ''}
                 <strong>Vendedor:</strong> ${params.get('vendedor') || 'Vendedor no especificado'}
             `;
             document.getElementById('datos').innerHTML = datosHtml;
@@ -160,15 +173,26 @@
             });
 
             // Totales
-            const subtotal = parseFloat(params.get('subtotal') || 0);
-            const descuento = parseFloat(params.get('descuento') || 0);
-            const impuesto = (subtotal - descuento) * 0.18;
-            const total = subtotal + impuesto;
+            const importe = parseFloat(params.get('subtotal')) || 0;
+            const descuento = parseFloat(params.get('descuento')) || 0;
+            const baseImpuesto = importe - descuento;
+            const impuesto = baseImpuesto * 0.18;
+            const total = baseImpuesto + impuesto;
 
-            document.getElementById('importe').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('importe').textContent = `$${importe.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('subTotal').textContent = `$${baseImpuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('impuesto').textContent = `$${impuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('total').textContent = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            // QR
+            const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
+            const qrImage = document.getElementById('qrCode');
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}`;
+
+            qrImage.onload = () => {
+                window.print();
+            };
         }
     </script>
 </head>
@@ -201,6 +225,8 @@
         <p><span>Impuesto (ITBIS 18%):</span> <span id="impuesto"></span></p>
         <p class="total"><strong>Total a Pagar:</strong> <span id="total"></span></p>
     </div>
+
+    <p class="footer">GRACIAS POR SU COMPRA EN GAVASLO. POR FAVOR, NOTE QUE LA GARANTÍA DE CADA EQUIPO SE ENCUENTRA DETALLADA JUNTO A LA DESCRIPCIÓN DEL PRODUCTO VENDIDO. NO NOS HACEMOS RESPONSABLES DE EQUIPOS DEJADOS EN REPARACIÓN POR MÁS DE 15 DÍAS. NO REALIZAMOS DEVOLUCIÓN DE DINERO. LA GARANTÍA SÓLO INCLUYE REPARACIONES Y PIEZAS EN CASO DE SER NECESARIO, NO INCLUYE REEMPLAZO DE EQUIPOS. CUENTA CORRIENTE BANRESERVAS: 9606863389.</p>
 
     <div class="qr-section">
         <p>Consultar garantía en línea:</p>
