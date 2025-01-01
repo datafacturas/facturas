@@ -108,7 +108,7 @@
 
         @media print {
             thead {
-                display: table-header-group;
+                display: none; /* Oculta el encabezado en las páginas siguientes */
             }
 
             table tbody tr {
@@ -173,7 +173,7 @@
             });
 
             // Totales
-            const grandTotal = parseFloat(params.get('GrandTotal') || 0);
+            const grandTotal = parseFloat(params.get('grandtotal') || 0);
             const descuento = parseFloat(params.get('descuento') || 0);
             const impuesto = grandTotal * 0.18;
             const total = grandTotal - descuento + impuesto;
