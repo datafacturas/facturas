@@ -108,7 +108,7 @@
 
         @media print {
             thead {
-                display: none; /* Oculta el encabezado en las páginas siguientes */
+                visibility: visible; /* Aseguramos que el encabezado sea visible en la impresión */
             }
 
             table tbody tr {
@@ -173,16 +173,16 @@
             });
 
             // Totales
-            const grandTotal = parseFloat(params.get('grandtotal') || 0);
+            const grandTotal = parseFloat(params.get('grandtotal') || 0); // Cambiamos de Subtotal a GrandTotal
             const descuento = parseFloat(params.get('descuento') || 0);
-            const impuesto = grandTotal * 0.18;
-            const total = grandTotal - descuento + impuesto;
+            const impuesto = grandTotal * 0.18; // ITBIS basado en GrandTotal
+            const totalPagar = grandTotal + impuesto; // Total a pagar basado en GrandTotal
 
             document.getElementById('importe').textContent = `$${grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('subTotal').textContent = `$${(grandTotal - descuento).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('subTotal').textContent = `$${grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('impuesto').textContent = `$${impuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('total').textContent = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('total').textContent = `$${totalPagar.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
             // QR
             const qrUrl = `https://script.google.com/macros/s/AKfycbyNIM0h0TB0eSLGp0hhvQqQD-7d1vkEbpCegoZJ1qw8G02ZUPR3Div-YC1uvOTamF0/exec?id=${params.get('facturaId')}`;
