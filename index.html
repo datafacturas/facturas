@@ -108,7 +108,7 @@
 
         @media print {
             thead {
-                visibility: visible; /* Muestra el encabezado solo en la primera página */
+                display: table-header-group;
             }
 
             table tbody tr {
@@ -173,14 +173,14 @@
             });
 
             // Totales
-            const subtotal = parseFloat(params.get('subtotal') || 0);
+            const grandTotal = parseFloat(params.get('GrandTotal') || 0);
             const descuento = parseFloat(params.get('descuento') || 0);
-            const impuesto = subtotal * 0.18;
-            const total = subtotal - descuento + impuesto;
+            const impuesto = grandTotal * 0.18;
+            const total = grandTotal - descuento + impuesto;
 
-            document.getElementById('importe').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('importe').textContent = `$${grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('descuento').textContent = `$${descuento.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('subTotal').textContent = `$${(subtotal - descuento).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('subTotal').textContent = `$${(grandTotal - descuento).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('impuesto').textContent = `$${impuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('total').textContent = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
