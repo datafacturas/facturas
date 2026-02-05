@@ -34,11 +34,21 @@
       justify-content:center;
       margin-bottom:6px;
     }
+
+    .company{
+      font-size: var(--f3);
+      line-height: 1.25;
+      margin-top: 4px;
+    }
+    .company .muted{ opacity:.8; }
+
     .meta{
       font-size: var(--f3);
       line-height: 1.25;
+      margin-top: 6px;
     }
     .meta strong{ font-weight:700; }
+
     .divider{
       border-top: var(--line);
       margin: 8px var(--pad);
@@ -127,15 +137,38 @@
       return (v === null || v === undefined) ? d : v;
     };
 
+    // ✅ FIX #1: AppSheet manda listas como "a, b, c"
+    // Si solo hay "a" (sin ", ") se trata como 1 item.
     const splitList = (v) => {
       if (!v) return [];
-      return String(v).split(",").map(s => s.trim()).filter(Boolean);
+      const s = String(v).trim();
+      if (s.includes(", ")) return s.split(", ").map(x => x.trim()).filter(Boolean);
+      return [s];
     };
 
+    // ✅ FIX #2: soporte para "$1.500,00" y "1500.00" y "1,500.00"
     const toNum = (v, def=0) => {
       if (v === null || v === undefined || v === "") return def;
-      const cleaned = String(v).replace(/,/g,"").trim();
-      const n = Number(cleaned);
+
+      let s = String(v).trim();
+
+      // Quitar símbolos / letras, dejar números y separadores
+      s = s.replace(/[^\d.,-]/g, "");
+      if (!s) return def;
+
+      const lastComma = s.lastIndexOf(",");
+      const lastDot = s.lastIndexOf(".");
+
+      // Caso 1: decimal coma (ej 1.500,00)
+      if (lastComma > lastDot) {
+        s = s.replace(/\./g, "");   // miles
+        s = s.replace(/,/g, ".");   // decimal
+      } else {
+        // Caso 2: decimal punto (ej 1,500.00) o sin decimales
+        s = s.replace(/,/g, "");    // miles
+      }
+
+      const n = Number(s);
       return Number.isFinite(n) ? n : def;
     };
 
@@ -144,7 +177,7 @@
       return "$" + num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // Tu fecha viene "02/04/2026" (MDY)
+    // Fecha viene "02/05/2026" (MDY en tu ejemplo)
     const parseMDY = (mdy) => {
       if (!mdy) return null;
       const [mm, dd, yyyy] = String(mdy).split("/").map(x => parseInt(x,10));
@@ -182,7 +215,7 @@
       const estado = get("estado", "—");
 
       // Extras
-      const direccion = get("direccion", "");
+      const direccionExtra = get("direccion", "");
       const domiStr = get("domi", "");
       const propinaStr = get("propina", "");
 
@@ -198,17 +231,14 @@
       let cantidades = splitList(cantidadesRaw);
       let punits = splitList(punitRaw);
 
-      if (servicios.length === 0 && serviciosRaw) servicios = [serviciosRaw];
-      if (cantidades.length === 0 && cantidadesRaw) cantidades = [cantidadesRaw];
-      if (punits.length === 0 && punitRaw) punits = [punitRaw];
-
+      // Normalización por seguridad
       const maxLen = Math.max(servicios.length, cantidades.length, punits.length, 1);
       while (servicios.length < maxLen) servicios.push(servicios[servicios.length-1] || "Servicio");
       while (cantidades.length < maxLen) cantidades.push(cantidades[cantidades.length-1] || "1");
       while (punits.length < maxLen) punits.push(punits[punits.length-1] || "0");
 
       // Totales del link
-      const total = toNum(get("total","0"), 0);
+      const totalParam = toNum(get("total","0"), 0);
 
       // En tu app: descuento = efectivo recibido, subtotal_desc = devuelta
       const recibido = toNum(get("descuento",""), 0);
@@ -231,7 +261,7 @@
 
       // Extras visibles si aplican
       const extras = [];
-      if (direccion) extras.push(`<div><strong>Dirección:</strong> ${escapeHtml(direccion)}</div>`);
+      if (direccionExtra) extras.push(`<div><strong>Dirección:</strong> ${escapeHtml(direccionExtra)}</div>`);
       if (domiStr !== "" && domi > 0) extras.push(`<div><strong>Domicilio:</strong> ${money(domi)}</div>`);
       if (propinaStr !== "" && propina > 0) extras.push(`<div><strong>Propina:</strong> ${money(propina)}</div>`);
 
@@ -249,9 +279,9 @@
 
       const ITBIS_RATE = 0.18;
 
-      let sumValor = 0;     // total final (incluye itbis)
-      let sumItbis = 0;     // itbis total
-      let sumBase = 0;      // subtotal sin itbis
+      let sumValor = 0;  // total final (incluye itbis)
+      let sumItbis = 0;  // itbis total
+      let sumBase = 0;   // subtotal sin itbis
 
       for (let i = 0; i < maxLen; i++){
         const name = decodeURIComponent(servicios[i] || "");
@@ -282,13 +312,14 @@
         tbody.appendChild(tr);
       }
 
-      // Si total viene en URL, lo respetamos como total final base
-      const totalFinal = total > 0 ? total : sumValor;
+      // Si total viene en URL, lo respetamos como total base (sin domi/propina)
+      const totalBase = totalParam > 0 ? totalParam : sumValor;
 
       // Totales abajo
-      document.getElementById("subtotal").textContent = money(total > 0 ? (totalFinal - sumItbis) : sumBase);
+      const subtotalSinItbis = totalBase - sumItbis; // si totalBase proviene de URL, itbis se calcula de líneas
+      document.getElementById("subtotal").textContent = money(subtotalSinItbis);
       document.getElementById("itbis").textContent = money(sumItbis);
-      document.getElementById("total").textContent = money(totalFinal + domi + propina);
+      document.getElementById("total").textContent = money(totalBase + domi + propina);
 
       // Recibido / devuelta solo si vienen
       const rowRecibido = document.getElementById("rowRecibido");
@@ -350,6 +381,14 @@
           </text>
         </g>
       </svg>
+    </div>
+
+    <!-- ✅ Datos fijos de la empresa -->
+    <div class="company">
+      <div><strong>RNC:</strong> <span class="muted">13-01902-5</span></div>
+      <div><strong>Teléfono:</strong> <span class="muted">1 (829) 523-1590</span></div>
+      <div><strong>WhatsApp:</strong> <span class="muted">1 (829) 523-1590</span></div>
+      <div class="muted">Tamboril, Santiago Rep. Dom.</div>
     </div>
 
     <div class="meta">
