@@ -25,7 +25,6 @@
       color:#000;
     }
 
-    /* Header */
     .header{
       padding: var(--pad) var(--pad) 6px;
       text-align:center;
@@ -45,19 +44,10 @@
       margin: 8px var(--pad);
     }
 
-    /* Info blocks */
     .info{
       padding: 0 var(--pad);
       font-size: var(--f2);
       line-height: 1.3;
-    }
-    .row{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .row .left{
-      min-width: 50%;
     }
     .badge{
       display:inline-block;
@@ -68,9 +58,9 @@
       font-weight:700;
       letter-spacing:.2px;
       vertical-align: middle;
+      margin-left: 6px;
     }
 
-    /* Table */
     .section-title{
       padding: 6px var(--pad) 0;
       font-size: var(--f1);
@@ -96,7 +86,6 @@
     .right{ text-align:right; }
     .nowrap{ white-space:nowrap; }
 
-    /* Totals */
     .totals{
       padding: 8px var(--pad) 0;
       font-size: var(--f2);
@@ -114,7 +103,6 @@
       font-weight: 800;
     }
 
-    /* Footer */
     .footer{
       padding: 10px var(--pad) 10px;
       border-top: var(--line);
@@ -126,7 +114,6 @@
 
     @media print{
       body{ width: var(--paper); }
-      .no-print{ display:none !important; }
       tr{ page-break-inside: avoid; }
     }
   </style>
@@ -157,7 +144,7 @@
       return "$" + num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // Tu fecha viene "02/04/2026" (en tu ejemplo se usa como MDY)
+    // Tu fecha viene "02/04/2026" (MDY)
     const parseMDY = (mdy) => {
       if (!mdy) return null;
       const [mm, dd, yyyy] = String(mdy).split("/").map(x => parseInt(x,10));
@@ -178,34 +165,43 @@
       return d.toLocaleTimeString("es-DO", { hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true });
     };
 
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
     function renderFactura(){
-      // ---------- Datos principales ----------
-      const boleta = get("boleta", "—");
-      const mesa   = get("mesa", "—");
-      const fecha  = get("fecha", "");
+      // Params base (no cambiamos nombres en URL para no romper AppSheet)
+      const venta = get("boleta", "—");
+      const cliente = get("mesa", "—");
+      const fechaStr = get("fecha", "");
       const estado = get("estado", "—");
-      const entrega = get("fecha_entrega", "");
 
       // Extras
-      const domi = get("domi", "");
       const direccion = get("direccion", "");
-      const propina = get("propina", "");
+      const domiStr = get("domi", "");
+      const propinaStr = get("propina", "");
 
-      // Productos (1 o múltiples)
+      // Hora (si quieres mostrarla junto a fecha usa &hora= o usas fecha_entrega)
+      const hora = get("hora", "") || get("fecha_entrega", "");
+
+      // Listas
       const serviciosRaw = get("servicios", "");
       const cantidadesRaw = get("cantidades", "");
       const punitRaw = get("p_unit", "");
 
-      const servicios = splitList(serviciosRaw);
-      const cantidades = splitList(cantidadesRaw);
-      const punits = splitList(punitRaw);
+      let servicios = splitList(serviciosRaw);
+      let cantidades = splitList(cantidadesRaw);
+      let punits = splitList(punitRaw);
 
-      // Si viene 1 solo valor (no lista) lo normalizamos a array
-      if (servicios.length === 0 && serviciosRaw) servicios.push(serviciosRaw);
-      if (cantidades.length === 0 && cantidadesRaw) cantidades.push(cantidadesRaw);
-      if (punits.length === 0 && punitRaw) punits.push(punitRaw);
+      if (servicios.length === 0 && serviciosRaw) servicios = [serviciosRaw];
+      if (cantidades.length === 0 && cantidadesRaw) cantidades = [cantidadesRaw];
+      if (punits.length === 0 && punitRaw) punits = [punitRaw];
 
-      // Si faltan cantidades/p_unit, replicamos
       const maxLen = Math.max(servicios.length, cantidades.length, punits.length, 1);
       while (servicios.length < maxLen) servicios.push(servicios[servicios.length-1] || "Servicio");
       while (cantidades.length < maxLen) cantidades.push(cantidades[cantidades.length-1] || "1");
@@ -214,36 +210,30 @@
       // Totales del link
       const total = toNum(get("total","0"), 0);
 
-      // En tu ejemplo:
-      // total=4470, descuento=4500, subtotal_desc=30
-      // => descuento funciona como "Recibido" y subtotal_desc como "Devuelta/Cambio"
-      const recibido = toNum(get("descuento",""), 0);       // (parámetro histórico)
-      const cambio   = toNum(get("subtotal_desc",""), 0);   // (parámetro histórico)
+      // En tu app: descuento = efectivo recibido, subtotal_desc = devuelta
+      const recibido = toNum(get("descuento",""), 0);
+      const devuelta = toNum(get("subtotal_desc",""), 0);
 
-      const propinaNum = toNum(propina, 0);
-      const domiNum = toNum(domi, 0);
+      const domi = toNum(domiStr, 0);
+      const propina = toNum(propinaStr, 0);
 
-      // Total final (si hay propina/domi)
-      const totalFinal = total + propinaNum + domiNum;
+      // Header
+      document.getElementById("venta").textContent = venta;
+      document.getElementById("cliente").textContent = cliente;
 
-      // ---------- Pintar header ----------
-      document.getElementById("boleta").textContent = boleta;
-      document.getElementById("mesa").textContent = mesa;
+      const d = parseMDY(fechaStr);
+      const fechaNice = d ? fmtDate(d) : (fechaStr || "—");
+      const horaNice = hora ? fmtTime12(hora) : "";
+      document.getElementById("fecha").textContent = horaNice ? `${fechaNice} ${horaNice}` : fechaNice;
 
-      const d = parseMDY(fecha);
-      document.getElementById("fecha").textContent = d ? fmtDate(d) : (fecha || "—");
-
-      document.getElementById("entrega").textContent = entrega ? fmtTime12(entrega) : "—";
-
-      // Estado badge
       const badge = document.getElementById("estado");
       badge.textContent = estado || "—";
 
-      // ---------- Dirección / extras ----------
+      // Extras visibles si aplican
       const extras = [];
-      if (direccion) extras.push(`<div><strong>Dirección:</strong> ${direccion}</div>`);
-      if (domi !== "") extras.push(`<div><strong>Domicilio:</strong> ${money(domiNum)}</div>`);
-      if (propina !== "") extras.push(`<div><strong>Propina:</strong> ${money(propinaNum)}</div>`);
+      if (direccion) extras.push(`<div><strong>Dirección:</strong> ${escapeHtml(direccion)}</div>`);
+      if (domiStr !== "" && domi > 0) extras.push(`<div><strong>Domicilio:</strong> ${money(domi)}</div>`);
+      if (propinaStr !== "" && propina > 0) extras.push(`<div><strong>Propina:</strong> ${money(propina)}</div>`);
 
       const extrasBox = document.getElementById("extras");
       if (extras.length) {
@@ -253,55 +243,56 @@
         extrasBox.style.display = "none";
       }
 
-      // ---------- Tabla ----------
+      // Tabla con ITBIS incluido
       const tbody = document.getElementById("items");
       tbody.innerHTML = "";
 
-      let calcSum = 0;
-      for (let i=0; i<maxLen; i++){
+      const ITBIS_RATE = 0.18;
+
+      let sumValor = 0;     // total final (incluye itbis)
+      let sumItbis = 0;     // itbis total
+      let sumBase = 0;      // subtotal sin itbis
+
+      for (let i = 0; i < maxLen; i++){
         const name = decodeURIComponent(servicios[i] || "");
         const qty = toNum(cantidades[i], 1);
-        const pu = toNum(punits[i], 0);
-        const sub = qty * pu;
-        calcSum += sub;
+
+        // p_unit viene como precio final (incluye itbis)
+        const pFinal = toNum(punits[i], 0);
+
+        // base e itbis unitarios (itbis incluido)
+        const pBase = pFinal / (1 + ITBIS_RATE);
+        const pItbis = pFinal - pBase;
+
+        const lineBase = qty * pBase;
+        const lineItbis = qty * pItbis;
+        const lineValor = qty * pFinal;
+
+        sumBase += lineBase;
+        sumItbis += lineItbis;
+        sumValor += lineValor;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(name)}</td>
-          <td class="right nowrap">${qty}</td>
-          <td class="right nowrap">${money(pu)}</td>
-          <td class="right nowrap">${money(sub)}</td>
+          <td class="right nowrap">${qty}x${money(pBase)}</td>
+          <td class="right nowrap">${money(lineItbis)}</td>
+          <td class="right nowrap">${money(lineValor)}</td>
         `;
         tbody.appendChild(tr);
       }
 
-      // Si el total no viene, lo calculamos
-      const totalUsado = total || calcSum;
-      const totalFinalUsado = (total ? totalFinal : (calcSum + domiNum + propinaNum));
+      // Si total viene en URL, lo respetamos como total final base
+      const totalFinal = total > 0 ? total : sumValor;
 
-      // ---------- Totales ----------
-      document.getElementById("totalBase").textContent = money(totalUsado);
+      // Totales abajo
+      document.getElementById("subtotal").textContent = money(total > 0 ? (totalFinal - sumItbis) : sumBase);
+      document.getElementById("itbis").textContent = money(sumItbis);
+      document.getElementById("total").textContent = money(totalFinal + domi + propina);
 
-      const rowDomi = document.getElementById("rowDomi");
-      const rowPropina = document.getElementById("rowPropina");
-
-      if (domi !== "" && domiNum > 0) {
-        rowDomi.style.display = "flex";
-        document.getElementById("domiVal").textContent = money(domiNum);
-      } else {
-        rowDomi.style.display = "none";
-      }
-
-      if (propina !== "" && propinaNum > 0) {
-        rowPropina.style.display = "flex";
-        document.getElementById("propinaVal").textContent = money(propinaNum);
-      } else {
-        rowPropina.style.display = "none";
-      }
-
-      // Recibido / Cambio solo si vienen
+      // Recibido / devuelta solo si vienen
       const rowRecibido = document.getElementById("rowRecibido");
-      const rowCambio = document.getElementById("rowCambio");
+      const rowDevuelta = document.getElementById("rowDevuelta");
 
       if (get("descuento","") !== "") {
         rowRecibido.style.display = "flex";
@@ -311,30 +302,17 @@
       }
 
       if (get("subtotal_desc","") !== "") {
-        rowCambio.style.display = "flex";
-        document.getElementById("cambioVal").textContent = money(cambio);
+        rowDevuelta.style.display = "flex";
+        document.getElementById("devueltaVal").textContent = money(devuelta);
       } else {
-        rowCambio.style.display = "none";
+        rowDevuelta.style.display = "none";
       }
 
-      document.getElementById("grandTotal").textContent = money(totalFinalUsado);
-
-      // Auto print (default ON)
+      // Auto print
       const autoprint = get("autoprint", "1");
       if (autoprint !== "0") {
-        // pequeño delay para asegurar render
         setTimeout(() => window.print(), 250);
       }
-    }
-
-    // Seguridad básica para HTML
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
     }
   </script>
 </head>
@@ -356,7 +334,6 @@
           </linearGradient>
         </defs>
 
-        <!-- Icon: RF monogram -->
         <g transform="translate(0,2)">
           <rect x="0" y="0" rx="10" ry="10" width="42" height="42" fill="url(#g)" />
           <path d="M12 30V12h10c5 0 8 2 8 7 0 4-2 6-5 7l6 4h-6l-5-4h-2v4h-6zm6-9h4c2 0 3-1 3-2.5S24 16 22 16h-4v5z"
@@ -364,7 +341,6 @@
           <path d="M18 34h18" stroke="#fff" stroke-width="2" opacity="0.35"/>
         </g>
 
-        <!-- Text -->
         <g transform="translate(54,7)">
           <text x="0" y="18" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#000">Roman</text>
           <text x="88" y="18" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="url(#accent)">Fit</text>
@@ -377,13 +353,9 @@
     </div>
 
     <div class="meta">
-      <div><strong>Boleta:</strong> <span id="boleta">—</span></div>
-      <div><strong>Mesa:</strong> <span id="mesa">—</span></div>
-      <div><strong>Fecha:</strong> <span id="fecha">—</span></div>
-      <div>
-        <strong>Entrega:</strong> <span id="entrega">—</span>
-        <span class="badge" id="estado">—</span>
-      </div>
+      <div><strong>Venta:</strong> <span id="venta">—</span></div>
+      <div><strong>Cliente:</strong> <span id="cliente">—</span></div>
+      <div><strong>Fecha:</strong> <span id="fecha">—</span> <span class="badge" id="estado">—</span></div>
     </div>
   </div>
 
@@ -398,34 +370,24 @@
       <tr>
         <th>Servicio</th>
         <th class="right">Cant.</th>
-        <th class="right">P/U</th>
-        <th class="right">Subtotal</th>
+        <th class="right">ITBIS</th>
+        <th class="right">Valor</th>
       </tr>
     </thead>
     <tbody id="items"></tbody>
   </table>
 
   <div class="totals">
-    <div class="trow"><span>Total:</span><strong id="totalBase">$0.00</strong></div>
-
-    <div class="trow" id="rowDomi" style="display:none;">
-      <span>Domicilio:</span><span id="domiVal">$0.00</span>
-    </div>
-
-    <div class="trow" id="rowPropina" style="display:none;">
-      <span>Propina:</span><span id="propinaVal">$0.00</span>
-    </div>
+    <div class="trow"><span>Subtotal (sin ITBIS):</span><strong id="subtotal">$0.00</strong></div>
+    <div class="trow"><span>ITBIS (18%):</span><strong id="itbis">$0.00</strong></div>
+    <div class="trow grand"><span>Total a Pagar:</span><span id="total">$0.00</span></div>
 
     <div class="trow" id="rowRecibido" style="display:none;">
       <span>Recibido:</span><span id="recibidoVal">$0.00</span>
     </div>
 
-    <div class="trow" id="rowCambio" style="display:none;">
-      <span>Devuelta:</span><span id="cambioVal">$0.00</span>
-    </div>
-
-    <div class="trow grand">
-      <span>Total a Pagar:</span><span id="grandTotal">$0.00</span>
+    <div class="trow" id="rowDevuelta" style="display:none;">
+      <span>Devuelta:</span><span id="devueltaVal">$0.00</span>
     </div>
   </div>
 
